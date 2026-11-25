@@ -1,0 +1,210 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidProfile(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.teacherName is string && data.teacherName.size() >= 1 && data.teacherName.size() <= 120 &&
+             data.nip is string && data.nip.size() <= 40 &&
+             data.schoolName is string && data.schoolName.size() <= 150 &&
+             data.schoolNpsn is string && data.schoolNpsn.size() <= 30 &&
+             data.schoolAddress is string && data.schoolAddress.size() <= 250 &&
+             data.educationLevel is string && data.educationLevel.size() <= 50 &&
+             data.defaultPhase is string && data.defaultPhase.size() <= 50 &&
+             data.defaultSubject is string && data.defaultSubject.size() <= 100 &&
+             data.academicYear is string && data.academicYear.size() <= 40 &&
+             data.principalName is string && data.principalName.size() <= 120 &&
+             data.principalNip is string && data.principalNip.size() <= 40;
+    }
+
+    function isValidDocType(docType) {
+      return docType in [
+        'MODUL_AJAR',
+        'CP_TP_ATP',
+        'LKPD',
+        'ASESMEN',
+        'PROSEM_PROTA',
+        'KOKURIKULER_P5',
+        'JURNAL_REFLEKSI'
+      ];
+    }
+
+    function isValidTeachingDoc(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.docType is string && isValidDocType(data.docType) &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+             data.educationLevel is string && data.educationLevel.size() >= 1 && data.educationLevel.size() <= 50 &&
+             data.phase is string && data.phase.size() >= 1 && data.phase.size() <= 50 &&
+             data.grade is string && data.grade.size() <= 40 &&
+             data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 100 &&
+             data.topic is string && data.topic.size() >= 1 && data.topic.size() <= 200 &&
+             data.duration is string && data.duration.size() <= 60 &&
+             data.pedagogicalModel is string && data.pedagogicalModel.size() <= 80 &&
+             data.deepLearningPrinciples is list &&
+             data.deepLearningPrinciples.size() <= 5 &&
+             (data.deepLearningPrinciples.size() == 0 || data.deepLearningPrinciples[0] is string) &&
+             data.graduateDimensions is list &&
+             data.graduateDimensions.size() <= 8 &&
+             (data.graduateDimensions.size() == 0 || data.graduateDimensions[0] is string) &&
+             data.contentMarkdown is string && data.contentMarkdown.size() >= 1 && data.contentMarkdown.size() <= 100000 &&
+             data.starred is bool;
+    }
+
+    function isValidBackupLog(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.actionType is string &&
+             data.actionType in ['EXPORT_JSON', 'IMPORT_JSON', 'CLOUD_SYNC', 'LOCAL_BACKUP', 'CLOUD_BACKUP'] &&
+             data.itemCount is int && data.itemCount >= 0 && data.itemCount <= 10000 &&
+             data.note is string && data.note.size() <= 200;
+    }
+
+    function isValidCloudBackup(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.snapshotName is string && data.snapshotName.size() >= 1 && data.snapshotName.size() <= 120 &&
+             data.itemCount is int && data.itemCount >= 0 && data.itemCount <= 10000 &&
+             data.payloadJson is string && data.payloadJson.size() >= 2 && data.payloadJson.size() <= 800000;
+    }
+
+    match /users/{userId}/profile/{profileId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(profileId) && profileId == 'teacher';
+
+      allow create: if isOwner(userId) &&
+                       isValidId(profileId) &&
+                       profileId == 'teacher' &&
+                       incoming().keys().hasAll([
+                         'userId', 'teacherName', 'nip', 'schoolName', 'schoolNpsn', 'schoolAddress',
+                         'educationLevel', 'defaultPhase', 'defaultSubject', 'academicYear',
+                         'principalName', 'principalNip', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'teacherName', 'nip', 'schoolName', 'schoolNpsn', 'schoolAddress',
+                         'educationLevel', 'defaultPhase', 'defaultSubject', 'academicYear',
+                         'principalName', 'principalNip', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidProfile(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(profileId) &&
+                       profileId == 'teacher' &&
+                       isValidProfile(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'teacherName', 'nip', 'schoolName', 'schoolNpsn', 'schoolAddress',
+                         'educationLevel', 'defaultPhase', 'defaultSubject', 'academicYear',
+                         'principalName', 'principalNip', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(profileId) && profileId == 'teacher';
+    }
+
+    match /users/{userId}/teaching_docs/{docId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(docId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(docId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'docType', 'title', 'educationLevel', 'phase',
+                         'grade', 'subject', 'topic', 'duration', 'pedagogicalModel',
+                         'deepLearningPrinciples', 'graduateDimensions',
+                         'contentMarkdown', 'starred', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'docType', 'title', 'educationLevel', 'phase',
+                         'grade', 'subject', 'topic', 'duration', 'pedagogicalModel',
+                         'deepLearningPrinciples', 'graduateDimensions',
+                         'contentMarkdown', 'starred', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidTeachingDoc(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(docId) &&
+                       isValidTeachingDoc(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       (
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'docType', 'title', 'educationLevel', 'phase', 'grade',
+                           'subject', 'topic', 'duration', 'pedagogicalModel',
+                           'deepLearningPrinciples', 'graduateDimensions',
+                           'contentMarkdown', 'starred', 'updatedAt'
+                         ]) ||
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'starred', 'updatedAt'
+                         ])
+                       );
+
+      allow delete: if isOwner(userId) && isValidId(docId);
+    }
+
+    match /users/{userId}/backup_logs/{logId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(logId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(logId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'actionType', 'itemCount', 'note', 'createdAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'actionType', 'itemCount', 'note', 'createdAt'
+                       ]) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       isValidBackupLog(incoming(), userId);
+
+      allow update: if false;
+      allow delete: if isOwner(userId) && isValidId(logId);
+    }
+
+    match /users/{userId}/cloud_backups/{backupId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(backupId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(backupId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'snapshotName', 'itemCount', 'payloadJson', 'createdAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'snapshotName', 'itemCount', 'payloadJson', 'createdAt'
+                       ]) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       isValidCloudBackup(incoming(), userId);
+
+      allow update: if false;
+      allow delete: if isOwner(userId) && isValidId(backupId);
+    }
+  }
+}

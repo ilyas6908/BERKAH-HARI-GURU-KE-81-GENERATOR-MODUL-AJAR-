@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">AjarMerdeka</string>
+    <string name="app_tagline">Generator Perangkat Mengajar Kurikulum Merdeka &amp; Deep Learning Kemendikdasmen</string>
+    <string name="powered_by_footer">Powered by Ilyas Auliya Alqarany @2026</string>
+    <string name="default_teacher_name">Ilyas, S.Pd.</string>
+    <string name="default_teacher_nip">196908052007011026</string>
+    <string name="default_school_name">SMPN 1 GONDANG KAB. MOJOKERTO</string>
+    <string name="default_school_npsn">20502646</string>
+    <string name="default_school_address">Jalan Raya Karangkuten, Kec. Gondang, Kab. Mojokerto, 61372</string>
+    <string name="default_principal_name">Subai, S.Pd.</string>
+    <string name="default_principal_nip">196812071997031003</string>
+    <string name="sign_in_with_google">Masuk dengan Google</string>
+    <string name="sign_out">Keluar Akun</string>
+    <string name="nav_home">Beranda</string>
+    <string name="nav_generator">Generator</string>
+    <string name="nav_collection">Koleksi</string>
+    <string name="nav_backup">Backup &amp; Profil</string>
+</resources>

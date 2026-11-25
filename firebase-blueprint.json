@@ -1,0 +1,262 @@
+{
+  "entities": {
+    "TeacherProfile": {
+      "title": "TeacherProfile",
+      "description": "Identitas guru dan satuan pendidikan untuk header dan pengesahan perangkat mengajar Kurikulum Merdeka.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID pemilik profil"
+        },
+        "teacherName": {
+          "type": "string",
+          "description": "Nama lengkap dan gelar guru"
+        },
+        "nip": {
+          "type": "string",
+          "description": "NIP atau NUPTK guru"
+        },
+        "schoolName": {
+          "type": "string",
+          "description": "Nama satuan pendidikan / sekolah"
+        },
+        "schoolNpsn": {
+          "type": "string",
+          "description": "Nomor Pokok Sekolah Nasional (NPSN)"
+        },
+        "schoolAddress": {
+          "type": "string",
+          "description": "Alamat lengkap satuan pendidikan / sekolah"
+        },
+        "educationLevel": {
+          "type": "string",
+          "description": "Jenjang pendidikan (PAUD, SD/MI, SMP/MTs, SMA/MA, SMK/MAK)"
+        },
+        "defaultPhase": {
+          "type": "string",
+          "description": "Fase Kurikulum Merdeka default"
+        },
+        "defaultSubject": {
+          "type": "string",
+          "description": "Mata pelajaran default"
+        },
+        "academicYear": {
+          "type": "string",
+          "description": "Tahun ajaran aktif"
+        },
+        "principalName": {
+          "type": "string",
+          "description": "Nama Kepala Sekolah untuk kolom pengesahan"
+        },
+        "principalNip": {
+          "type": "string",
+          "description": "NIP Kepala Sekolah"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembuatan dokumen (FieldValue.serverTimestamp())"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembaruan terakhir (FieldValue.serverTimestamp())"
+        }
+      },
+      "required": [
+        "userId",
+        "teacherName",
+        "nip",
+        "schoolName",
+        "schoolNpsn",
+        "schoolAddress",
+        "educationLevel",
+        "defaultPhase",
+        "defaultSubject",
+        "academicYear",
+        "principalName",
+        "principalNip",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TeachingDocument": {
+      "title": "TeachingDocument",
+      "description": "Dokumen perangkat mengajar Kurikulum Merdeka dan Deep Learning Kemendikdasmen.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID pemilik perangkat mengajar"
+        },
+        "docType": {
+          "type": "string",
+          "enum": [
+            "MODUL_AJAR",
+            "CP_TP_ATP",
+            "LKPD",
+            "ASESMEN",
+            "PROSEM_PROTA",
+            "KOKURIKULER_P5",
+            "JURNAL_REFLEKSI"
+          ],
+          "description": "Jenis perangkat mengajar"
+        },
+        "title": {
+          "type": "string",
+          "description": "Judul perangkat mengajar"
+        },
+        "educationLevel": {
+          "type": "string",
+          "description": "Jenjang pendidikan"
+        },
+        "phase": {
+          "type": "string",
+          "description": "Fase Kurikulum Merdeka"
+        },
+        "grade": {
+          "type": "string",
+          "description": "Kelas / Semester"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Mata pelajaran"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Topik atau materi pokok"
+        },
+        "duration": {
+          "type": "string",
+          "description": "Alokasi waktu JP / pertemuan"
+        },
+        "pedagogicalModel": {
+          "type": "string",
+          "description": "Model praktik pedagogis"
+        },
+        "deepLearningPrinciples": {
+          "type": "array",
+          "description": "Prinsip Pembelajaran Mendalam: Berkesadaran, Bermakna, Menggembirakan"
+        },
+        "graduateDimensions": {
+          "type": "array",
+          "description": "8 Dimensi Profil Lulusan Kemendikdasmen"
+        },
+        "contentMarkdown": {
+          "type": "string",
+          "description": "Konten lengkap perangkat mengajar"
+        },
+        "starred": {
+          "type": "boolean",
+          "description": "Penanda perangkat favorit"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu dibuat (FieldValue.serverTimestamp())"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu diperbarui (FieldValue.serverTimestamp())"
+        }
+      },
+      "required": [
+        "userId",
+        "docType",
+        "title",
+        "educationLevel",
+        "phase",
+        "grade",
+        "subject",
+        "topic",
+        "duration",
+        "pedagogicalModel",
+        "deepLearningPrinciples",
+        "graduateDimensions",
+        "contentMarkdown",
+        "starred",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BackupLog": {
+      "title": "BackupLog",
+      "description": "Catatan riwayat backup dan restore perangkat mengajar.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID"
+        },
+        "actionType": {
+          "type": "string",
+          "enum": ["EXPORT_JSON", "IMPORT_JSON", "CLOUD_SYNC", "LOCAL_BACKUP", "CLOUD_BACKUP"],
+          "description": "Jenis aktivitas backup atau restore"
+        },
+        "itemCount": {
+          "type": "integer",
+          "description": "Jumlah perangkat yang diproses"
+        },
+        "note": {
+          "type": "string",
+          "description": "Ringkasan keterangan aktivitas"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu aktivitas (FieldValue.serverTimestamp())"
+        }
+      },
+      "required": ["userId", "actionType", "itemCount", "note", "createdAt"]
+    },
+    "CloudBackupSnapshot": {
+      "title": "CloudBackupSnapshot",
+      "description": "Snapshot cadangan (backup) lengkap profil guru dan seluruh perangkat mengajar di Cloud Firestore.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID pemilik backup"
+        },
+        "snapshotName": {
+          "type": "string",
+          "description": "Label nama snapshot backup"
+        },
+        "itemCount": {
+          "type": "integer",
+          "description": "Jumlah perangkat mengajar dalam snapshot"
+        },
+        "payloadJson": {
+          "type": "string",
+          "description": "Payload JSON terstruktur berisi profil dan seluruh perangkat mengajar"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembuatan snapshot (FieldValue.serverTimestamp())"
+        }
+      },
+      "required": ["userId", "snapshotName", "itemCount", "payloadJson", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/profile/{profileId}": {
+      "schema": { "$ref": "#/entities/TeacherProfile" },
+      "description": "Profil identitas guru dan satuan pendidikan milik pengguna."
+    },
+    "/users/{userId}/teaching_docs/{docId}": {
+      "schema": { "$ref": "#/entities/TeachingDocument" },
+      "description": "Koleksi perangkat mengajar Kurikulum Merdeka & Deep Learning milik pengguna."
+    },
+    "/users/{userId}/backup_logs/{logId}": {
+      "schema": { "$ref": "#/entities/BackupLog" },
+      "description": "Riwayat aktivitas backup dan restore milik pengguna."
+    },
+    "/users/{userId}/cloud_backups/{backupId}": {
+      "schema": { "$ref": "#/entities/CloudBackupSnapshot" },
+      "description": "Snapshot cadangan database perangkat mengajar di Cloud Firestore."
+    }
+  }
+}

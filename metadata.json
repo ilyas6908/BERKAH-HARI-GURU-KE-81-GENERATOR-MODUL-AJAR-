@@ -1,0 +1,6 @@
+{
+  "name": "AjarMerdeka",
+  "description": "Generator perangkat mengajar sesuai ketentuan Kurikulum Merdeka dan Pembelajaran Mendalam (Deep Learning) Kemendikdasmen dengan menu lengkap serta fitur Backup & Restore.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
